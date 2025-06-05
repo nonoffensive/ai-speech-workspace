@@ -23,7 +23,7 @@ export default function Range (options: RangeOptions) {
 
   return (
     <div className="flex gap-4 items-center flex-row">
-      <label htmlFor={id}>{name}:</label>
+      <label htmlFor={id} className="text-capitalize">{name}:</label>
       <div
         className=""
         style={{position: 'relative'}}

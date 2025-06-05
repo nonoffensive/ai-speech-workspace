@@ -10,6 +10,10 @@ import Range from "@/components/ui/range";
 export default function Home() {
   const [search, setSearch] = useState('')
   const [voice, setVoice] = useState('')
+  const [rate, setRate] = useState(0)
+  const [pitch, setPitch] = useState(0)
+  const [text, setText] = useState('')
+  const [clips, setClips] = useState([] as string[])
   const [hello, setHello] = useState('')
 
   const fetcher = (options: string[]) => fetch(options[0] + `?search=${options[1]}`).then(async (r) => await r.json() as Voice[])
@@ -18,14 +22,24 @@ export default function Home() {
 
   useEffect(() => {
     if (voice) {
-      fetch(`/api/speak?text=Hello&voice=${voice}`).then(async (r) => {
+      fetch(`/api/speak?text=Hello&voice=${voice}&rate=${rate}&pitch=${pitch}`).then(async (r) => {
         setHello(await r.text())
       })
     }
   }, [voice])
 
+  const synthesizeSpeech = async () => {
+    const params = new URLSearchParams()
+    params.set('text', text)
+    params.set('voice', voice)
+    params.set('rate', String(rate))
+    params.set('pitch', String(pitch))
+    const base64: string = await fetch(`/api/speak?` + params.toString()).then(r => r.text())
+    setClips(clips.concat([base64]))
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-start justify-start min-h-screen font-[family-name:var(--font-geist-sans)]">
+    <div className="flex flex-row items-start pt-6 justify-start min-h-screen font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 content-start justify-start">
         <div className="flex gap-4 items-center flex-row sm:flex-row">
           <div className="flex gap-4 items-center flex-row sm:flex-row border-1 border-gray-300 px-4 py-2 rounded-xl">
@@ -35,11 +49,16 @@ export default function Home() {
             <input type="text" className="border-none outline-none w-full" name="voiceSearch" onInput={(e) => setSearch(e.currentTarget.value)} placeholder="Search Voices..." />
           </div>
 
-          <Range name="pitch" min={-20} max={20} defaultValue={0} />
-          <Range name="rate" min={-50} max={50} defaultValue={0} />
+          <Range name="pitch" min={-20} max={20} defaultValue={0} onChange={(value: number) => setPitch(value)} />
+          <Range name="rate" min={-50} max={50} defaultValue={0} onChange={(value: number) => setRate(value)} />
 
           <div>
-            <button className="cursor-pointer font-semibold px-4 py-2 bg-blue-700 rounded-xl">Generate</button>
+            <button
+              className="cursor-pointer font-semibold px-4 py-2 bg-blue-700 rounded-xl"
+              onClick={synthesizeSpeech}
+            >
+              Generate
+            </button>
           </div>
           
         </div>
@@ -47,6 +66,7 @@ export default function Home() {
           placeholder="Text to speak..."
           name="text"
           className="bg-white text-black px-2 py-1 border-1 outline-0 rounded-sm"
+          onInput={(e) => setText(e.currentTarget.value)}
         />
 
         <div className="flex flex-col flex-wrap items-center">
@@ -69,6 +89,13 @@ export default function Home() {
         )}
 
       </main>
+      <div className="flex flex-col gap-4">
+        { clips.length > 0 && clips.map( (clip, i) => (
+          <div key={i}>
+            <audio src={clip} controls={true} />
+          </div>
+        ))}
+      </div>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
       </footer>
     </div>
