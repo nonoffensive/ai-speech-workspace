@@ -7,7 +7,6 @@ export async function GET(request: Request) {
   const voices = await tts.getVoices() as Voice[]
 
   const query = new URLSearchParams(request.url.split('?')[1])
-  console.log(query)
   const search = (query.get('search') || '').toLowerCase()
   const terms = search.length > 0 ? search.split(' ') : [] as string[]
 
@@ -28,8 +27,6 @@ export async function GET(request: Request) {
       if (hasMatch === terms.length) matches.push(voice)
     }
   }
-
-  console.log(terms.join(' '), matches.length)
 
   return new Response(JSON.stringify(matches), {
     status: 200,
