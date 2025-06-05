@@ -13,7 +13,7 @@ export default function Home() {
   const [rate, setRate] = useState(0)
   const [pitch, setPitch] = useState(0)
   const [text, setText] = useState('')
-  const [clips, setClips] = useState([] as string[])
+  const [clips, setClips] = useState([] as any[])
   const [hello, setHello] = useState('')
 
   const fetcher = (options: string[]) => fetch(options[0] + `?search=${options[1]}`).then(async (r) => await r.json() as Voice[])
@@ -35,7 +35,13 @@ export default function Home() {
     params.set('rate', String(rate))
     params.set('pitch', String(pitch))
     const base64: string = await fetch(`/api/speak?` + params.toString()).then(r => r.text())
-    setClips(clips.concat([base64]))
+    setClips(clips.concat([{
+      audio: base64,
+      text,
+      voice,
+      rate,
+      pitch
+    }]))
   }
 
   return (
@@ -91,8 +97,11 @@ export default function Home() {
       </main>
       <div className="flex flex-col gap-4">
         { clips.length > 0 && clips.map( (clip, i) => (
-          <div key={i}>
-            <audio src={clip} controls={true} />
+          <div key={i} className="flex flex-row">
+            <div className="flex flex-col">
+              <span>{clip.voice} - {clip.text}</span>
+              <audio src={clip.audio} controls={true} />
+            </div>
           </div>
         ))}
       </div>
