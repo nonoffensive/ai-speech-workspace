@@ -5,6 +5,7 @@ import { useState } from "react";
 import useSWR from 'swr'
 import { Voice } from "@/types/voice";
 import Spinner from "@/components/ui/spinner";
+import Range from "@/components/ui/range";
 
 export default function Home() {
   const [search, setSearch] = useState('')
@@ -17,8 +18,8 @@ export default function Home() {
   console.log(data)
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 content-start">
+    <div className="grid grid-rows-[20px_1fr_20px] items-start justify-start min-h-screen font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-[32px] row-start-2 content-start justify-start">
         <div className="flex gap-4 items-center flex-row sm:flex-row">
           <div className="flex gap-4 items-center flex-row sm:flex-row border-1 border-gray-300 px-4 py-2 rounded-xl">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -27,19 +28,28 @@ export default function Home() {
             <input type="text" className="border-none outline-none w-full" name="voiceSearch" onInput={(e) => setSearch(e.currentTarget.value)} placeholder="Search Voices..." />
           </div>
 
+          <Range name="pitch" min={-20} max={20} defaultValue={0} />
+
+          <div className="flex gap-4 items-center flex-row">
+            <span>Rate:</span>
+            <input type="range" min={-50} max={50} defaultValue={0} name="range" />
+          </div>
+          <div>
+            <button className="cursor-pointer font-semibold px-4 py-2 bg-blue-700 rounded-xl">Generate</button>
+          </div>
         </div>
 
-        <div className="flex flex-col flex-wrap items-center border-1">
+        <div className="flex flex-col flex-wrap items-center">
           { isLoading && search ? (
             <Spinner />
           ):(
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row flex-wrap items-center gap-4 w-max-[500px]">
               { data && data.map((v, i) => (
                 <span
                   key={i}
                   onClick={() => setVoice(v.ShortName)}
                   className={ 'cursor-pointer px-2 py-1 rounded border-1' + (v.ShortName===voice ? ' border-gray-500' : ' border-gray-800')}
-                >{v.ShortName}</span>
+                >{v.ShortName} {v.Gender}</span>
               ))}
             </div>
           )}

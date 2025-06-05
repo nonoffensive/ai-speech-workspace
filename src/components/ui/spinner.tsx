@@ -1,3 +1,5 @@
+// Snippet from https://flowbite.com/docs/components/spinner/
+
 export default function Spinner () {
     return (
     <div role="status">
